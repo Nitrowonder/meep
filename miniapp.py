@@ -1,5 +1,6 @@
-from meep_example_app import MeepExampleApp, initialize
-import datatime
+from meeplib import initialize
+import meep_example_app
+import datetime
 import os
 
 def main():
