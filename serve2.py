@@ -20,11 +20,42 @@ def fake_start_response(status, headers):
 def handle_connection(sock):
     while 1:
         try:
-            data = sock.recv(4096)
+            data = ''
+            while 1:
+                x = sock.recv(1)
+                data += x
+                #data = sock.recv(4096)
+                if data[-4:] == "\r\n\r\n":
+                    break
             if not data:
                 break
 
             #print "data:", (data,)
+
+            # we need to check for POST and grab the Content-Length integer
+            tmp = data
+            tmp.strip()
+            allLines = tmp.split("\r\n")
+            # get request type
+            request = allLines.pop(0)
+            requestInfoList = request.split(' ')
+            if requestInfoList[0] == "POST":
+                contentLength = 0
+                # get the content length
+                for line in allLines:
+                    splitLine = line.split(':', 2)
+                    if splitLine[0].lower() == 'content-length':
+                        contentLength = splitLine[1].strip()
+                # now we loop a sock.recv of size 1 to get all POST data
+                # the Content-Length header denotes how long the POST data is
+                # eg. 45 = 45 bytes, so sock.recv(1) 45 times
+                contentLength = int(contentLength)
+                if contentLength > 0:
+                    i = 0
+                    while i < contentLength:
+                        x = sock.recv(1)
+                        data += x
+                        i += 1
 
             sock.sendall(handle_request(data))
             sock.close()
