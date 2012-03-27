@@ -4,6 +4,8 @@ import cgi
 import pickle
 import Cookie
 import meepcookie
+import mimetypes
+mimetypes.init()
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -14,6 +16,22 @@ def render_page(filename, **variables):
     template = env.get_template(filename)
     x = template.render(**variables)
     return str(x)
+
+class FileServer(object):
+    def __init__(self, filename):
+        self.content_type = mimetypes.guess_type(filename)[0]
+        self.filename = filename
+
+    def __call__(self, environ, start_response):
+        try:
+            fp = open(self.filename)
+        except OSerror:
+            start_response("404 not found", [('Content-type', 'text/html'),])
+            return 'file not found'
+
+        data = fp.read()
+        start_response("200 OK", [('Content-type', self.content_type),])
+        return data
 
 class MeepExampleApp(object):
     """
@@ -279,7 +297,8 @@ class MeepExampleApp(object):
                       '/m/add': self.add_message,
                       '/m/add_action': self.add_message_action,
                       '/m/delete_message_action': self.delete_message_action,
-                      '/m/reply_message_action': self.reply_message_action
+                      '/m/reply_message_action': self.reply_message_action,
+                      '/default.css': FileServer("templates/default.css")
                       }
 
         # see if the URL is in 'call_dict'; if it is, call that function.
