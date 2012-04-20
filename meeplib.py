@@ -224,7 +224,7 @@ def create_messages_table(con):
 # Description:  Creates the replies table - durp durp
 #
 def create_replies_table(con):
-    con.query("CREATE TABLE replies (message_id INT, post VARCHAR(255));")
+    con.query("CREATE TABLE replies (replies INT, post VARCHAR(255));")
 
 #
 # Function: table_exists
