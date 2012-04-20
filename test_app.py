@@ -1,8 +1,10 @@
 import unittest
 import meep_example_app
+import meeplib
 
 class TestApp(unittest.TestCase):
     def setUp(self):
+        meeplib.initialize()
         app = meep_example_app.MeepExampleApp()
         self.app = app
 
